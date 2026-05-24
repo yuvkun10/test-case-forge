@@ -1,0 +1,47 @@
+{
+  "name": "test-case-forge",
+  "version": "0.1.0",
+  "description": "Generate starter Vitest unit test files from JavaScript and TypeScript function signatures.",
+  "type": "module",
+  "bin": {
+    "test-case-forge": "./dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yuvkun10/test-case-forge.git"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "lint": "eslint .",
+    "test": "vitest run"
+  },
+  "keywords": [
+    "unit-tests",
+    "vitest",
+    "typescript",
+    "cli"
+  ],
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/yuvkun10/test-case-forge/issues"
+  },
+  "homepage": "https://github.com/yuvkun10/test-case-forge#readme",
+  "dependencies": {
+    "commander": "^14.0.2",
+    "typescript": "^5.9.3"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.1",
+    "@types/node": "^24.10.1",
+    "eslint": "^9.39.1",
+    "typescript-eslint": "^8.46.4",
+    "vitest": "^4.0.13"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
