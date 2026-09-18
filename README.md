@@ -1,85 +1,29 @@
 # test-case-forge
 
-Generate starter Vitest unit test files from JavaScript and TypeScript function signatures.
+Generate starter Vitest unit test files from JavaScript and TypeScript function
+signatures. The CLI reads a source file, finds supported function signatures, and prints
+or writes a Vitest file with imports, suites, placeholder arguments and async-aware
+calls. Version 0.1.0; the output is a scaffold you edit, not finished tests.
 
-`test-case-forge` is a small CLI for developers who want fast, editable test scaffolds instead of blank files. It reads a source file, finds supported function signatures, and prints or writes a Vitest test file with imports, suites, placeholder arguments, and async-aware calls.
+## Installation
 
-## Who it is for
-
-- Application developers adding first-pass unit tests to existing modules.
-- Maintainers who want consistent Vitest starter files across a codebase.
-- Teams modernizing JavaScript or TypeScript projects and looking for obvious test coverage gaps.
-- Educators, reviewers, and onboarding leads who want examples of how exported functions can be exercised.
-
-## Real-world use cases
-
-- Bootstrap tests for a utility module before replacing placeholders with real assertions.
-- Preview the shape of generated tests during code review without writing files.
-- Create adjacent `*.test.ts` files for exported functions in a refactor branch.
-- Include non-exported top-level helpers as skipped suites so teams can decide whether to export, delete, or test through public behavior.
-- Standardize Vitest file layout before adding richer fixtures, mocks, and edge cases.
-
-## How it works
-
-```mermaid
-flowchart LR
-  A[Source file] --> B[TypeScript compiler parser]
-  B --> C[Function signature extraction]
-  C --> D[Vitest template generation]
-  D --> E{Mode}
-  E -->|Preview| F[Print test content to stdout]
-  E -->|Write| G[Create test file on disk]
-```
-
-Diagram source: [docs/architecture.mmd](docs/architecture.mmd).
-
-The CLI uses the TypeScript compiler API to parse TypeScript, TSX, JavaScript, and JSX. It detects exported function declarations, exported arrow/function expressions, default function exports, and re-exported named functions. With `--all`, it also includes non-exported top-level helper functions as skipped suites.
-
-Generated output is intentionally a starting point:
-
-- Imports exported functions from the source file.
-- Creates one `describe` block per discovered signature.
-- Inserts placeholder `undefined` arguments with parameter names in comments.
-- Awaits async functions.
-- Uses `expect(result).toBeDefined()` as a safe starter assertion.
-- Skips non-exported helper suites until the function is exported or tested through public behavior.
-
-## Install
+Requires Node.js 20 or newer (CI runs Node.js 24). No environment variables are required.
 
 ```bash
 npm install
 npm run build
 ```
 
-For local development, use Node.js 20 or newer. CI currently runs on Node.js 24.
-
 ## Usage
 
-Preview a generated test file:
-
 ```bash
-npm exec test-case-forge -- src/math.ts
-```
-
-Write the default `*.test.ts` file next to the source:
-
-```bash
-npm exec test-case-forge -- src/math.ts --write
-```
-
-Write to a custom output path:
-
-```bash
+npm exec test-case-forge -- src/math.ts                  # preview on stdout
+npm exec test-case-forge -- src/math.ts --write          # write src/math.test.ts
 npm exec test-case-forge -- src/math.ts --write --output tests/math.test.ts
+npm exec test-case-forge -- src/math.ts --all            # include non-exported helpers as skipped suites
 ```
 
-Include non-exported top-level helpers as skipped suites:
-
-```bash
-npm exec test-case-forge -- src/math.ts --all
-```
-
-## Commands
+Daily commands:
 
 ```bash
 npm run lint
@@ -90,60 +34,57 @@ npm audit --audit-level=moderate
 npm outdated
 ```
 
-`npm outdated` exits with a non-zero status when direct dependencies are behind the registry. That is intentional for dependency hygiene checks.
+Flags are listed in [docs/configuration.md](docs/configuration.md). There is no npm
+publish workflow in this repository.
 
-## Environment and configuration
-
-No environment variables are required to use `test-case-forge`.
-
-The repository includes `.env.example` only as a safe placeholder for future wrapper scripts or local automation. Put machine-specific values in `.env`; `.env` and `.env.*` are ignored by git, while `.env.example` stays safe to commit.
-
-CLI configuration is passed through command flags:
-
-- `<source>`: source file to inspect.
-- `--write`: write the generated file instead of previewing it.
-- `--output <path>`: choose a custom output path.
-- `--all`: include non-exported top-level helper functions as skipped suites.
-
-## Codebase structure
+## Project structure
 
 ```text
-.
-|-- .github/
-|   |-- dependabot.yml
-|   `-- workflows/ci.yml
-|-- src/
-|   |-- cli.ts
-|   |-- generator.ts
-|   |-- signatures.ts
-|   |-- template.ts
-|   `-- *.test.ts
-|-- .env.example
-|-- eslint.config.js
-|-- package.json
-|-- tsconfig.json
-`-- vitest.config.ts
+├── src
+│   ├── cli.ts
+│   ├── generator.ts
+│   ├── signatures.ts
+│   ├── template.ts
+│   └── *.test.ts
+├── docs
+│   ├── architecture.md
+│   └── archive
+├── eslint.config.js
+├── package.json
+├── tsconfig.json
+└── vitest.config.ts
 ```
 
-- `src/cli.ts` handles command-line parsing, preview/write mode, and user-facing messages.
-- `src/generator.ts` resolves paths, reads source files, and writes generated content when requested.
-- `src/signatures.ts` parses source files and extracts supported function signatures.
-- `src/template.ts` converts signatures into Vitest starter suites.
-- `src/*.test.ts` covers CLI behavior, signature extraction, generation, and template output.
+How the pieces fit together: [docs/architecture.md](docs/architecture.md).
 
-## Security and privacy
+## Coding style
 
-- Source analysis runs locally. The CLI does not upload source code or generated tests.
-- Generated test files may contain function names, import paths, and parameter names from your codebase. Review output before committing.
-- Do not place secrets in source files, generated tests, commit history, or README examples.
-- Keep `.env` local. Commit only `.env.example` with placeholder or non-sensitive values.
-- Dependency hygiene is checked with `npm audit --audit-level=moderate`, `npm outdated`, Dependabot for npm, and Dependabot for GitHub Actions.
+ESLint runs the recommended JavaScript rules and the typescript-eslint `strict` set
+(`eslint.config.js`). TypeScript runs in `strict` mode. CI runs lint and typecheck on
+pushes to `main` and on pull requests. There is no formatter or commit convention configured.
 
-## Dependency maintenance
+```bash
+npm run lint
+npm run typecheck
+```
 
-The project uses:
+## Test
 
-- `npm audit --audit-level=moderate` to fail on moderate-or-higher known vulnerabilities.
-- `npm outdated` to surface dependency drift.
-- Dependabot weekly updates for npm packages and GitHub Actions.
-- CI checks for install, audit, outdated dependencies, lint, typecheck, tests, and build.
+```bash
+npm test
+```
+
+Vitest tests sit next to the source in `src/*.test.ts` and cover CLI behavior,
+signature extraction, file generation and template output.
+
+## Documentation
+
+- [docs/README.md](docs/README.md): index of all docs
+- [docs/architecture.md](docs/architecture.md): parsing, generated output and modules
+- [docs/overview.md](docs/overview.md): audience and use cases
+- [docs/configuration.md](docs/configuration.md): environment and CLI flags
+- [docs/operations.md](docs/operations.md): security, privacy and dependency maintenance
+
+## License
+
+MIT. See [LICENSE](LICENSE).
