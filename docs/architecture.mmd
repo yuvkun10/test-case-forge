@@ -1,0 +1,7 @@
+flowchart LR
+  A[Source file] --> B[TypeScript compiler parser]
+  B --> C[Function signature extraction]
+  C --> D[Vitest template generation]
+  D --> E{Mode}
+  E -->|Preview| F[Print test content to stdout]
+  E -->|Write| G[Create test file on disk]

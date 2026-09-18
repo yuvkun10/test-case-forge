@@ -31,6 +31,8 @@ flowchart LR
   E -->|Write| G[Create test file on disk]
 ```
 
+Diagram source: [docs/architecture.mmd](docs/architecture.mmd).
+
 The CLI uses the TypeScript compiler API to parse TypeScript, TSX, JavaScript, and JSX. It detects exported function declarations, exported arrow/function expressions, default function exports, and re-exported named functions. With `--all`, it also includes non-exported top-level helper functions as skipped suites.
 
 Generated output is intentionally a starting point:
